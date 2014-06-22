@@ -31,6 +31,7 @@
     //them, iVersion will just get the release notes from iTunes directly (if your app is on the store)
     [iVersion sharedInstance].remoteVersionsPlistURL = @"http://charcoaldesign.co.uk/iVersion/versions.plist";
     [iVersion sharedInstance].localVersionsPlistPath = @"versions.plist";
+    [iVersion sharedInstance].ignoreButtonLabel=@"";
 }
 
 - (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(__unused NSDictionary *)launchOptions

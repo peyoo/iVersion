@@ -476,8 +476,8 @@ static NSString *const iVersionMacAppStoreURLFormat = @"macappstore://itunes.app
     return [[UIAlertView alloc] initWithTitle:title
                                       message:details
                                      delegate:(id<UIAlertViewDelegate>)self
-                            cancelButtonTitle:cancelButton ?: defaultButton
-                            otherButtonTitles:cancelButton? defaultButton: nil, nil];
+                            cancelButtonTitle:cancelButton
+                            otherButtonTitles:defaultButton, nil];
     
 #else
     
@@ -1165,45 +1165,48 @@ static NSString *const iVersionMacAppStoreURLFormat = @"macappstore://itunes.app
         //record that details have been viewed
         self.viewedVersionDetails = YES;
     }
-    else if (buttonIndex == alertView.cancelButtonIndex)
-    {
-        //ignore this version
-        self.ignoredVersion = latestVersion;
-        self.lastReminded = nil;
+    else{
         
-        //log event
-        if ([self.delegate respondsToSelector:@selector(iVersionUserDidIgnoreUpdate:)])
+        if ([self.ignoreButtonLabel length]&&buttonIndex == alertView.cancelButtonIndex)
         {
-            [self.delegate iVersionUserDidIgnoreUpdate:latestVersion];
-        }
-    }
-    else if (buttonIndex == 2)
-    {
-        //remind later
-        self.lastReminded = [NSDate date];
-        
-        //log event
-        if ([self.delegate respondsToSelector:@selector(iVersionUserDidRequestReminderForUpdate:)])
+            //ignore this version
+            self.ignoredVersion = latestVersion;
+            self.lastReminded = nil;
+            
+            //log event
+            if ([self.delegate respondsToSelector:@selector(iVersionUserDidIgnoreUpdate:)])
+            {
+                [self.delegate iVersionUserDidIgnoreUpdate:latestVersion];
+            }
+        }else
+        if (([self.ignoreButtonLabel length]==0&&buttonIndex == 0)||(self.ignoreButtonLabel.length&&buttonIndex==1)) {
+            //clear reminder
+            self.lastReminded = nil;
+            
+            //log event
+            if ([self.delegate respondsToSelector:@selector(iVersionUserDidAttemptToDownloadUpdate:)])
+            {
+                [self.delegate iVersionUserDidAttemptToDownloadUpdate:latestVersion];
+            }
+            
+            if (![self.delegate respondsToSelector:@selector(iVersionShouldOpenAppStore)] ||
+                [self.delegate iVersionShouldOpenAppStore])
+            {
+                //go to download page
+                [self openAppPageInAppStore];
+            }
+        }else
+            
+        if ((self.ignoreButtonLabel.length==0&&self.downloadButtonLabel.length==0&&buttonIndex == 0)||((self.ignoreButtonLabel.length==0||self.downloadButtonLabel.length==0)&&buttonIndex==1)||(self.ignoreButtonLabel.length&&self.downloadButtonLabel.length&&buttonIndex==2))
         {
-            [self.delegate iVersionUserDidRequestReminderForUpdate:latestVersion];
-        }
-    }
-    else
-    {
-        //clear reminder
-        self.lastReminded = nil;
-        
-        //log event
-        if ([self.delegate respondsToSelector:@selector(iVersionUserDidAttemptToDownloadUpdate:)])
-        {
-            [self.delegate iVersionUserDidAttemptToDownloadUpdate:latestVersion];
-        }
-        
-        if (![self.delegate respondsToSelector:@selector(iVersionShouldOpenAppStore)] ||
-            [self.delegate iVersionShouldOpenAppStore])
-        {
-            //go to download page
-            [self openAppPageInAppStore];
+            //remind later
+            self.lastReminded = [NSDate date];
+            
+            //log event
+            if ([self.delegate respondsToSelector:@selector(iVersionUserDidRequestReminderForUpdate:)])
+            {
+                [self.delegate iVersionUserDidRequestReminderForUpdate:latestVersion];
+            }
         }
     }
     
