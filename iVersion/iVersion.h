@@ -158,6 +158,9 @@ iVersionErrorCode;
 - (BOOL)shouldCheckForNewVersion;
 - (void)checkForNewVersion;
 
+-(BOOL)inReview;
+
+
 @end
 
 
