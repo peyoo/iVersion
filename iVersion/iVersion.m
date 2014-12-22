@@ -1368,7 +1368,10 @@ static NSString *const iVersionMacAppStoreURLFormat = @"macappstore://itunes.app
 
 
 -(BOOL)inReview{
-    if (![self.remoteVersionsDict count]) {
+#ifdef DEBUG
+    return NO;
+#endif
+    if ([self.remoteVersionsDict count]) {
         return YES;
     }else{
         for (NSString * v in self.remoteVersionsDict) {
